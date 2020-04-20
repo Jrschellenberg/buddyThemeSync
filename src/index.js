@@ -19,8 +19,11 @@ const hashmapManifest = json.reduce((obj, cur) => {
 
 const wroteFile = async(file) => {
   return new Promise((resolve, reject) => {
-    const { shopifyKey, value } = file;
-    fs.writeFile(`/root/syncTheme/${shopifyKey}`, value, err => {
+    const { key, value, attachment } = file;
+    const writeContent = value ? value : attachment;
+    const encoding = value ? 'utf8' : 'base64';
+
+    fs.writeFile(`/root/syncTheme/${key}`, writeContent, encoding,err => {
       if (err) {
         reject(err);
       }
@@ -99,13 +102,7 @@ const init = async () => {
       const shopifyKey = downloadFiles[i];
 
       const asset = await shopify.getAsset(id, shopifyKey);
-
-      const { value } = asset;
-
-      files.push({
-        shopifyKey,
-        value
-      });
+      files.push(asset);
     }
 
     const promises = files.map(file => wroteFile(file));

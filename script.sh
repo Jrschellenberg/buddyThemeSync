@@ -1,4 +1,8 @@
 cd /root/
+# Setting Committer
+git config --global user.name "FireNet ThemeSync"
+git config --global user.email "firenetdesigns@gmail.com"
+
 ssh-keyscan github.com >> /root/.ssh/known_hosts
 git clone https://github.com/Jrschellenberg/buddyThemeSync.git themeSyncer
 
@@ -7,11 +11,9 @@ git clone $GITHUB_SYNC_REPO syncTheme
 
 cd syncTheme
 git checkout -b staging
-git pull origin staging
+git pull origin staging || echo "Staging does not yet exist, will be created"
 
-# Setting Committer
-git config --global user.name "FireNet ThemeSync"
-git config --global user.email "firenetdesigns@gmail.com"
+
 cd ../themeSyncer
 
 # Writing Variables

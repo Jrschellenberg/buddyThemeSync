@@ -1,9 +1,11 @@
+/* eslint camelcase: 0 */
 import * as fs from 'fs';
 import Shopify from './services/Shopify';
 import Environment from './environment/Environment';
 
 let json;
 try {
+  // eslint-disable-next-line
   json = require('../../syncTheme/manifest.json');
 } catch (e) {
   console.error('Manifest does not exist, creating new one');

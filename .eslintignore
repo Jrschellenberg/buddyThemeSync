@@ -1,0 +1,9 @@
+.babelrc
+.babelrc.js
+*.json
+node_modules/
+polyfills/
+webpack.config.js
+example.*.js
+webstorm.js
+*.min.js

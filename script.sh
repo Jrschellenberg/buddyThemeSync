@@ -22,4 +22,5 @@ yarn start
 cd ../syncTheme
 git checkout -b staging
 git add -A
+git commit -m "Downloads from live Theme"
 git push origin staging

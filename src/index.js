@@ -4,7 +4,7 @@ import Environment from './environment/Environment';
 
 let json;
 try {
-  json = require('/root/syncTheme/manifest.json');
+  json = require('../../syncTheme/manifest.json');
 }
 catch(e){
   console.error("Manifest does not exist, creating new one");
@@ -14,6 +14,7 @@ catch(e){
 const hashmapManifest = json.reduce((obj, cur) => {
   const { key } = cur;
   obj[key] = {...cur};
+  return obj;
 }, {});
 
 const init = async () => {
@@ -26,11 +27,13 @@ const init = async () => {
     const { id } = liveTheme;
     const manifest = await shopify.getAssetManifest(id);
 
-    fs.writeFile(`/root/syncTheme/manifest.json`, manifest, err => {
-      if (err) {
-        console.error(err);
-      }
-    });
+    if(JSON.stringify(manifest) !== JSON.stringify(json)){
+      fs.writeFile(`/root/syncTheme/manifest.json`, JSON.stringify(manifest), err => {
+        if (err) {
+          console.error(err);
+        }
+      });
+    }
 
     const downloadFiles = manifest.filter(file => {
       const { key } = file;

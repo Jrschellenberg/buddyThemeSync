@@ -1,6 +1,6 @@
 cd /root/
 ssh-keyscan github.com >> /root/.ssh/known_hosts
-git clone git@github.com:Jrschellenberg/themeSyncer.git themeSyncer
+git clone https://github.com/Jrschellenberg/buddyThemeSync.git themeSyncer
 
 # Download the Env Repo
 git clone $GITHUB_SYNC_REPO syncTheme

@@ -29,6 +29,30 @@ const wroteFile = async(file) => {
   });
 }
 
+/**
+ *
+ * @param {object} file - Shopify Asset object
+ * @param {object} hashmap - A Hashmap of all the shopify Assets
+ * @returns {boolean} - returns true if this file should not be downloaded.
+ */
+const isSkipFileLogic = (file, hashmap) => {
+  const { key } = file;
+
+  const isLiquid = key.includes('.liquid');
+  const conflictFileKey = isLiquid ? key.replace('.liquid', '') : `${key}.liquid`;
+
+  const conflictFileUpdatedAt = hashmap[conflictFileKey]?.updated_at;
+  const fileUpdatedAt = file.updated_at;
+
+  if(!conflictFileUpdatedAt){
+    return false; // no conflict
+  }
+
+  const fileUpdateTime = new Date(fileUpdatedAt).getTime();
+  const conflictUpdateTime = new Date(conflictFileUpdatedAt).getTime();
+
+  return fileUpdateTime > conflictUpdateTime; // if conflict file is ahead, strip out the current one.
+}
 
 const init = async () => {
   try {
@@ -42,11 +66,23 @@ const init = async () => {
 
     fs.writeFileSync(`/root/syncTheme/manifest.json`, JSON.stringify(manifest));
 
+    const themeHashmapManifest = manifest.reduce((obj, cur) => {
+      const { key } = cur;
+      obj[key] = {...cur};
+      return obj;
+    }, {});
+
+
     const downloadFiles = manifest.filter(file => {
       const { key } = file;
-      const themeUpdatedAt = file.updated_at;
 
+      if(key.includes('assets') && isSkipFileLogic(file, themeHashmapManifest)){
+        return false
+      }
+
+      const themeUpdatedAt = file.updated_at;
       const repoUpdatedAt = hashmapManifest[key]?.updated_at;
+
       if(!repoUpdatedAt){
         return true;
       }

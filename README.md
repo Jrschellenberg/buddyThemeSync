@@ -13,9 +13,18 @@
  - Setup Node Action
  - Paste `script.sh` into shell
  - Setup Environment Variables, they should be called what what is in `.env.example` Please see attached Screenshot
- - 
+ ![Alt text](/docs/buddy.png?raw=true "Optional Title")
  - Copy the buddy `.ssh key` and add it as a `deploy key` with `write access` under github project settings for repo to sync (This will grant the Container access to read / write of repo)
- - 
+ ![Alt text](/docs/deploy_key.png?raw=true "Optional Title")
+ - Create a Shopify Private App this will be the 
+ ```bash
+SHOPIFY_STORE=
+SHOPIFY_API_KEY=
+SHOPIFY_PASSWORD=
+```
+![Alt text](/docs/shopify.png?raw=true "Optional Title")
+
+- lastly, set the `GITHUB_SYNC_REPO` to be the ssh key path to your repo, for example for this repo it is `git@github.com:Jrschellenberg/buddyThemeSync.git`
  
  
 

@@ -20,6 +20,7 @@ cd ../themeSyncer
 echo "SHOPIFY_STORE=$SHOPIFY_STORE" >> .env
 echo "SHOPIFY_API_KEY=$SHOPIFY_API_KEY" >> .env
 echo "SHOPIFY_PASSWORD=$SHOPIFY_PASSWORD" >> .env
+[[ -z "$SHOPIFY_THEME_ID" ]] && echo "No Shopify Theme Specified, Will use Live Theme" || echo "SHOPIFY_THEME_ID=$SHOPIFY_THEME_ID" >> .env
 
 yarn
 yarn start

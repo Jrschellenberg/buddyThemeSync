@@ -23,7 +23,7 @@ const wroteFile = async(file) => {
     const writeContent = value ? value : attachment;
     const encoding = value ? 'utf8' : 'base64';
 
-    fs.writeFile(`/root/syncTheme/${key}`, writeContent, encoding,err => {
+    fs.writeFile(`/root/syncTheme/${key}`, writeContent, encoding, err => {
       if (err) {
         reject(err);
       }
@@ -63,8 +63,15 @@ const init = async () => {
 
     const themes = await shopify.getThemes();
 
-    const liveTheme = themes.find(t => t?.role?.toLowerCase() === 'main');
-    const { id } = liveTheme;
+    let id;
+    if(Environment.shopifyThemeId){
+      id = Environment.shopifyThemeId;
+    }
+    else {
+      const liveTheme = themes.find(t => t?.role?.toLowerCase() === 'main');
+      id = liveTheme.id;
+    }
+
     const manifest = await shopify.getAssetManifest(id);
 
     fs.writeFileSync(`/root/syncTheme/manifest.json`, JSON.stringify(manifest));

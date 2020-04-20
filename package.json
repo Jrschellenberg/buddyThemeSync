@@ -1,6 +1,6 @@
 {
   "name": "themeSyncer",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "themeSyncer",
   "main": "src/index.js",
   "scripts": {
@@ -11,6 +11,9 @@
     "version": "npm run build && conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add -A",
     "postversion": "git push && git push --tags"
   },
+  "bugs": "https://github.com/Jrschellenberg/buddyThemeSync/issues",
+  "homepage": "https://github.com/Jrschellenberg/buddyThemeSync",
+  "repository": "https://github.com/Jrschellenberg/buddyThemeSync",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,6 +26,7 @@
     "@babel/core": "^7.5.5",
     "@babel/register": "^7.9.0",
     "babel-preset-bold-cs": "7.1.0",
+    "conventional-changelog-cli": "^2.0.31",
     "eslint": "^6.8.0",
     "eslint-config-bold-cs": "6.1.2",
     "eslint-plugin-import": "^2.20.2",

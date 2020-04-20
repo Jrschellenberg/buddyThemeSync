@@ -17,6 +17,19 @@ const hashmapManifest = json.reduce((obj, cur) => {
   return obj;
 }, {});
 
+const wroteFile = async(file) => {
+  return new Promise((resolve, reject) => {
+    const { shopifyKey, value } = file;
+    fs.writeFile(`/root/syncTheme/${shopifyKey}`, value, err => {
+      if (err) {
+        reject(err);
+      }
+      resolve();
+    });
+  });
+}
+
+
 const init = async () => {
   try {
     const shopify = new Shopify(Environment.shopifyStore, Environment.shopifyAPI, Environment.shopifyPass);
@@ -27,13 +40,7 @@ const init = async () => {
     const { id } = liveTheme;
     const manifest = await shopify.getAssetManifest(id);
 
-    if(JSON.stringify(manifest) !== JSON.stringify(json)){
-      fs.writeFile(`/root/syncTheme/manifest.json`, JSON.stringify(manifest), err => {
-        if (err) {
-          console.error(err);
-        }
-      });
-    }
+    fs.writeFileSync(`/root/syncTheme/manifest.json`, JSON.stringify(manifest));
 
     const downloadFiles = manifest.filter(file => {
       const { key } = file;
@@ -50,6 +57,8 @@ const init = async () => {
       return themeUpdateTime > repoUpdateTime;
     }).map(f => f.key);
 
+    const files = [];
+
     for(let i=0; i< downloadFiles.length; i++) {
       const shopifyKey = downloadFiles[i];
 
@@ -57,12 +66,14 @@ const init = async () => {
 
       const { value } = asset;
 
-      fs.writeFile(`/root/syncTheme/${shopifyKey}`, value, err => {
-        if (err) {
-          console.error(err);
-        }
+      files.push({
+        shopifyKey,
+        value
       });
     }
+
+    const promises = files.map(file => wroteFile(file));
+    await Promise.all(promises); // Wait for all files to finish writing.
   }
   catch(e){
     console.error(e);

@@ -13,20 +13,19 @@ export default class Shopify {
   async getAssetManifest(id) {
     try {
       return await this.shopify.asset.list(id);
-    }
-    catch(e){
-      console.error("Could not get Shopify Assets!");
+    } catch (e) {
+      console.error('Could not get Shopify Assets!');
       throw new Error(e);
     }
   }
+
   async getAsset(id, key) {
     try {
-      return await this.shopify.asset.get( id,{
+      return await this.shopify.asset.get(id, {
         'asset[key]': key,
       });
-    }
-    catch(e){
-      console.error("Could not get Shopify Assets!");
+    } catch (e) {
+      console.error('Could not get Shopify Assets!');
       throw new Error(e);
     }
   }
@@ -35,9 +34,8 @@ export default class Shopify {
     try {
       const themes = await this.shopify.theme.list();
       return themes;
-    }
-    catch(e){
-      console.error("Could not get Shopify Live Theme Id!");
+    } catch (e) {
+      console.error('Could not get Shopify Live Theme Id!');
       throw new Error(e);
     }
   }

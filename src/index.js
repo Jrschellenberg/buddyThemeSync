@@ -1,26 +1,25 @@
 import * as fs from 'fs';
-import Shopify from "./services/Shopify";
+import Shopify from './services/Shopify';
 import Environment from './environment/Environment';
 
 let json;
 try {
   json = require('../../syncTheme/manifest.json');
-}
-catch(e){
-  console.error("Manifest does not exist, creating new one");
+} catch (e) {
+  console.error('Manifest does not exist, creating new one');
   json = [];
 }
 
 const hashmapManifest = json.reduce((obj, cur) => {
   const { key } = cur;
-  obj[key] = {...cur};
+  obj[key] = { ...cur };
   return obj;
 }, {});
 
-const wroteFile = async(file) => {
+const wroteFile = async file => {
   return new Promise((resolve, reject) => {
     const { key, value, attachment } = file;
-    const writeContent = value ? value : attachment;
+    const writeContent = value || attachment;
     const encoding = value ? 'utf8' : 'base64';
 
     fs.writeFile(`/root/syncTheme/${key}`, writeContent, encoding, err => {
@@ -30,7 +29,7 @@ const wroteFile = async(file) => {
       resolve();
     });
   });
-}
+};
 
 /**
  *
@@ -42,12 +41,14 @@ const isSkipFileLogic = (file, hashmap) => {
   const { key } = file;
 
   const isLiquid = key.includes('.liquid');
-  const conflictFileKey = isLiquid ? key.replace('.liquid', '') : `${key}.liquid`;
+  const conflictFileKey = isLiquid
+    ? key.replace('.liquid', '')
+    : `${key}.liquid`;
 
   const conflictFileUpdatedAt = hashmap[conflictFileKey]?.updated_at;
   const fileUpdatedAt = file.updated_at;
 
-  if(!conflictFileUpdatedAt){
+  if (!conflictFileUpdatedAt) {
     return false; // no conflict
   }
 
@@ -55,19 +56,22 @@ const isSkipFileLogic = (file, hashmap) => {
   const conflictUpdateTime = new Date(conflictFileUpdatedAt).getTime();
 
   return fileUpdateTime > conflictUpdateTime; // if conflict file is ahead, strip out the current one.
-}
+};
 
 const init = async () => {
   try {
-    const shopify = new Shopify(Environment.shopifyStore, Environment.shopifyAPI, Environment.shopifyPass);
+    const shopify = new Shopify(
+      Environment.shopifyStore,
+      Environment.shopifyAPI,
+      Environment.shopifyPass
+    );
 
     const themes = await shopify.getThemes();
 
     let id;
-    if(Environment.shopifyThemeId){
+    if (Environment.shopifyThemeId) {
       id = Environment.shopifyThemeId;
-    }
-    else {
+    } else {
       const liveTheme = themes.find(t => t?.role?.toLowerCase() === 'main');
       id = liveTheme.id;
     }
@@ -78,34 +82,38 @@ const init = async () => {
 
     const themeHashmapManifest = manifest.reduce((obj, cur) => {
       const { key } = cur;
-      obj[key] = {...cur};
+      obj[key] = { ...cur };
       return obj;
     }, {});
 
+    const downloadFiles = manifest
+      .filter(file => {
+        const { key } = file;
 
-    const downloadFiles = manifest.filter(file => {
-      const { key } = file;
+        if (
+          key.includes('assets') &&
+          isSkipFileLogic(file, themeHashmapManifest)
+        ) {
+          return false;
+        }
 
-      if(key.includes('assets') && isSkipFileLogic(file, themeHashmapManifest)){
-        return false
-      }
+        const themeUpdatedAt = file.updated_at;
+        const repoUpdatedAt = hashmapManifest[key]?.updated_at;
 
-      const themeUpdatedAt = file.updated_at;
-      const repoUpdatedAt = hashmapManifest[key]?.updated_at;
+        if (!repoUpdatedAt) {
+          return true;
+        }
 
-      if(!repoUpdatedAt){
-        return true;
-      }
+        const repoUpdateTime = new Date(repoUpdatedAt).getTime();
+        const themeUpdateTime = new Date(themeUpdatedAt).getTime();
 
-      const repoUpdateTime = new Date(repoUpdatedAt).getTime();
-      const themeUpdateTime = new Date(themeUpdatedAt).getTime();
-
-      return themeUpdateTime > repoUpdateTime;
-    }).map(f => f.key);
+        return themeUpdateTime > repoUpdateTime;
+      })
+      .map(f => f.key);
 
     const files = [];
 
-    for(let i=0; i< downloadFiles.length; i++) {
+    for (let i = 0; i < downloadFiles.length; i++) {
       const shopifyKey = downloadFiles[i];
 
       const asset = await shopify.getAsset(id, shopifyKey);
@@ -114,19 +122,17 @@ const init = async () => {
 
     const promises = files.map(file => wroteFile(file));
     await Promise.all(promises); // Wait for all files to finish writing.
-  }
-  catch(e){
+  } catch (e) {
     console.error(e);
   }
-}
-
+};
 
 const start = Date.now();
 
 init()
   .then(() => {
     const end = Date.now();
-    const timeSpent = (end - start)/1000;
+    const timeSpent = (end - start) / 1000;
     console.log(`Took ${timeSpent} Seconds to Run!`);
     process.exit(0);
   })

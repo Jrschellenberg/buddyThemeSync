@@ -22,4 +22,4 @@ yarn start
 cd ../syncTheme
 git checkout -b staging
 git add -A
-git push origin/staging
+git push origin staging
